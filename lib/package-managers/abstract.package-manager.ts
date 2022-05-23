@@ -5,6 +5,7 @@ import { join } from 'path';
 import { AbstractRunner } from '../runners/abstract.runner';
 import { MESSAGES } from '../ui';
 import { normalizeToKebabOrSnakeCase } from '../utils/formatting';
+import { isCurrentWorkingDirectory } from '../utils/is-current-working-directory';
 import { PackageManagerCommands } from './package-manager-commands';
 import { ProjectDependency } from './project.dependency';
 
@@ -24,6 +25,7 @@ export abstract class AbstractPackageManager {
       const commandArgs = `${this.cli.install} ${this.cli.silentFlag}`;
       const collect = true;
       const normalizedDirectory = normalizeToKebabOrSnakeCase(directory);
+      const isCurrentDirectory = isCurrentWorkingDirectory(directory);
       await this.runner.run(
         commandArgs,
         collect,
@@ -34,7 +36,8 @@ export abstract class AbstractPackageManager {
       console.info(MESSAGES.PACKAGE_MANAGER_INSTALLATION_SUCCEED(directory));
       console.info(MESSAGES.GET_STARTED_INFORMATION);
       console.info();
-      console.info(chalk.gray(MESSAGES.CHANGE_DIR_COMMAND(directory)));
+      if (!isCurrentDirectory)
+        console.info(chalk.gray(MESSAGES.CHANGE_DIR_COMMAND(directory)));
       console.info(chalk.gray(MESSAGES.START_COMMAND(packageManager)));
       console.info();
     } catch {
